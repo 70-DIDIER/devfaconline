@@ -1,0 +1,4 @@
+{
+    "pkgs": ["php81", "composer", "mysql-client", "nginx", "nodejs"]
+  }
+  
