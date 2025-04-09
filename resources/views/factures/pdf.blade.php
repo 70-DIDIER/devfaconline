@@ -90,11 +90,9 @@
                     <td>{{ number_format($facture->prixunit * $facture->qte, 0, ',', ' ') }} FCFA</td>
                 </tr>
             @endforeach
-
             @php
-                $totalAchat = $diver->factures->sum(function($facture) { 
-                    return $facture->prixunit * $facture->qte; 
-                });
+                // Calcul des totaux DIRECTEMENT dans le Blade
+                $totalAchat = $diver->factures->sum(fn($f) => $f->prixunit * $f->qte);
                 $totalGeneral = $totalAchat + $diver->transport + $diver->mainoeuvre;
             @endphp
 
@@ -118,7 +116,18 @@
     </table>
 
     <div class="montant-lettres">
-        <p>Arrêté le présent devis à la somme de : ________________________________________________</p>
+        @php
+            // Conversion en lettres avec vérification d'erreur
+            try {
+                $numberToWords = new NumberToWords\NumberToWords();
+                $formatter = $numberToWords->getNumberTransformer('fr');
+                $montantLettres = ucfirst($formatter->toWords($totalGeneral)) . ' francs CFA';
+            } catch(Exception $e) {
+                $montantLettres = "[Erreur de conversion]";
+            }
+        @endphp
+        
+        <p>Arrêté le présent devis à la somme de : <strong>{{ $montantLettres }}</strong></p>
     </div>
 
     <div class="signature">
